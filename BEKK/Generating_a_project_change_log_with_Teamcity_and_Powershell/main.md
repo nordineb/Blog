@@ -1,37 +1,63 @@
 ##Release notes are important
-High-speed release cycles significantly shortens development time frames, but can quickly become a mess if you don't know what's included in your releases.
+
+Getting software released to users as fast as possible is one of the goals of continuous delivery, but it can quickly become a mess if you don't know what's included in your releases. This script will create beautiful release notes if your provide meaningful commit messages.
 
 ##Powershell to the rescue
 
-Consuming Teamcity REST API from Powershell is quite simple. The following script was tested on Teamcity 9.0, but I think it'll work on previous versions too.
+Consuming Teamcity REST API from Powershell is quite simple. The following script was tested on Teamcity 9.0, but will probalby work previous versions.
 
 ```posh
-$outputFile = "%system.teamcity.build.tempDir%\releasenotesfile_%teamcity.build.id%.txt"
-Write-Host "Will create changelog here: $outputFile"
-$authToken=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("%system.teamcity.auth.userId%:%system.teamcity.auth.password%"))
+<#
+.SYNOPSIS
+    Generates a project change log file.
+.DESCRIPTION
+    A detailed description of the function or script. This keyword can be
+    used only once in each topic.
+.LINK
+    Script posted over:
+    http://open.bekk.no/generating-a-project-change-log-with-teamcity-and-powershell
+#>
 
-$request = [System.Net.WebRequest]::Create("%teamcity.serverUrl%/httpAuth/app/rest/changes?build=id:%teamcity.build.id%")
+# Where the changelog file will be created
+$outputFile = "%system.teamcity.build.tempDir%\releasenotesfile_%teamcity.build.id%.txt"
+# the url of teamcity server
+$teamcityUrl = "http://etfteamcity.ls.no"
+# username/password to access Teamcity REST API
+$authToken=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("%system.teamcity.auth.userId%:%system.teamcity.auth.password%"))
+# Build id for the release notes
+$buildId = %teamcity.build.id%
+
+
+# Grab all the changes
+$request = [System.Net.WebRequest]::Create("$($teamcityUrl)/httpAuth/app/rest/changes?build=id:$($buildId)")
 $request.Headers.Add("AUTHORIZATION", "$authToken");
 $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()
-$ids = Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/changes/change" | Foreach { GetCommitMsg($_.Node.id)} 
-$result="";
-#
-$ids | Foreach { $result += "+ $($_.Author): $($_.Message) $([Environment]::NewLine)"}
-$result > $outputFile
 
-Function GetCommitMessagessg($changeid)
+# Then get all commit messages for each of them
+Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/changes/change" | 
+    Foreach {GetCommitMessages($_.Node.id)} > $outputFile
+
+
+# Get the commit messages for the specified change id
+# Ignore messages containing #ignore
+# Ignore empty lines
+Function GetCommitMessages($changeid)
 {
-	# Get all the changes in the build ifentified by $changeid.
-	$request = [System.Net.WebRequest]::Create("%teamcity.serverUrl%/httpAuth/app/rest/changes/id:$changeid")	 
+	$request = [System.Net.WebRequest]::Create("$($teamcityUrl)/httpAuth/app/rest/changes/id:$changeid")	 
 	$request.Headers.Add("AUTHORIZATION", "$authToken");
-	$xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()
-	Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/change" | % {New-Object -TypeName PSObject | Add-Member -NotePropertyName Author -NotePropertyValue $_.Node["user"].name -PassThru | Add-Member -NotePropertyName Message -NotePropertyValue $_.Node["comment"].InnerText -PassThru}
+	$xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()    
+    Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/change" |
+        where { ($_.Node["comment"].InnerText.Length -ne 0) -and (-Not $_.Node["comment"].InnerText.Contains('#ignore'))} |
+        foreach {"$($_.Node["user"].name) : $($_.Node["comment"].InnerText.Trim())"}
 }
 ```
 
-##Pushing release notes to Octopus
+It should work out of the box, create a new powershell step like so:
 
-If you use octo.exe directly, simply add --releasenotesfile to your command line:
+
+##Pushing release notes to Octopus Deploy
+
+To send the release notes to Octopus Deploy, simply add --releasenotesfile to octo.exe:
 
 ```posh
 octo.exe create-release 
@@ -51,7 +77,6 @@ Or simply use the Octopus Teamcity plugin:
 
 ##Conclusion
 
-Our relea
 ![Release notes in Octopus Deploy](https://bekkopen.blob.core.windows.net/attachments/1fe6331c-af38-4859-a7a5-00e3885853bb "Release notes in Octopus Deploy")
 
-In my next blog post I will show how we use Powershell to create an email with all release notes since last production.
+It didn't take much effort to generate release notes with Teamcity and Powershell. My next blog will show how....
