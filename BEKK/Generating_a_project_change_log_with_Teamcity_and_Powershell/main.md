@@ -34,7 +34,7 @@ Function GetCommitMessages($changeid)
     $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()    
     Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/change" |
         where { ($_.Node["comment"].InnerText.Length -ne 0) -and (-Not $_.Node["comment"].InnerText.Contains('#ignore'))} |
-        foreach {"$($_.Node["user"].name) : $($_.Node["comment"].InnerText.Trim())"}
+        foreach {"+ $($_.Node["user"].name) : $($_.Node["comment"].InnerText.Trim().Replace("`n"," "))`n"}
 }
 
 # Grab all the changes
@@ -46,11 +46,7 @@ $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetRespons
 $changelog = Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/changes/change" | Foreach {GetCommitMessages($_.Node.id)}
 $changelog > $outputFile
 Write-Host "Changelog saved to $($outputFile):"
-Write-Host $changelog
-
-
-
-
+$changelog
 ```
 
 <img src="https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/TC_Step.png" alt="Teamcity Build Step" style="width: 570px;"/>
