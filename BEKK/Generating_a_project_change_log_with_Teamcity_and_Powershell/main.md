@@ -67,7 +67,7 @@ octo.exe create-release
 	--releasenotesfile="D:\BuildAgent\temp\buildTmp\releasenotesfile_578.txt"
 ```
 
-Or use the Octopus Teamcity plugin:
+Or use the Octopus plugin:
 
 <img src="https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/TC_Plugin.png" style="width: 570px;"/>
 
