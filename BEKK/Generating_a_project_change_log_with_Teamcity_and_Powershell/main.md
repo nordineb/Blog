@@ -18,7 +18,7 @@ Consuming Teamcity REST API from Powershell is quite simple (tested on Teamcity 
 # Where the changelog file will be created
 $outputFile = "%system.teamcity.build.tempDir%\releasenotesfile_%teamcity.build.id%.txt"
 # the url of teamcity server
-$teamcityUrl = %teamcity.serverUrl%
+$teamcityUrl = "%teamcity.serverUrl%"
 # username/password to access Teamcity REST API
 $authToken=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("%system.teamcity.auth.userId%:%system.teamcity.auth.password%"))
 # Build id for the release notes
