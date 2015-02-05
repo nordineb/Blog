@@ -29,7 +29,7 @@ $buildId = %teamcity.build.id%
 # Ignore empty lines
 Function GetCommitMessages($changeid)
 {
-    $request = [System.Net.WebRequest]::Create("$($teamcityUrl)/httpAuth/app/rest/changes/id:$changeid")     
+    $request = [System.Net.WebRequest]::Create("$teamcityUrl/httpAuth/app/rest/changes/id:$changeid")     
     $request.Headers.Add("AUTHORIZATION", "$authToken");
     $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()    
     Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/change" |
