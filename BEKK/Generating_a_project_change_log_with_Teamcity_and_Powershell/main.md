@@ -53,6 +53,7 @@ Write-Host $changelog
 
 ```
 
+[[TC_Step.png | width=570px]]
 ![Teamcity plugin](https://bekkopen.blob.core.windows.net/attachments/4e8abcfb-63fe-4db1-995b-d4420febb111 "teamcity plugin")
 
 ##Pushing release notes to Octopus Deploy
