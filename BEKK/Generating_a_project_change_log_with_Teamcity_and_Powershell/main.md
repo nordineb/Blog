@@ -53,7 +53,7 @@ Write-Host $changelog
 
 ```
 
-![Teamcity plugin](https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/TC_Step.png | width=570px)
+<img src="https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/TC_Step.png" alt="Teamcity Build Step" style="width: 570px;"/>
 
 ##Pushing release notes to Octopus Deploy
 
@@ -73,9 +73,10 @@ octo.exe create-release
 
 Or use the Octopus Teamcity plugin:
 
-![Teamcity plugin](https://bekkopen.blob.core.windows.net/attachments/4e8abcfb-63fe-4db1-995b-d4420febb111 "teamcity plugin")
+<img src="https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/TC_Plugin.png" style="width: 570px;"/>
 
 ##Conclusion
 
 With this simple PowerShell script we can create release notes from our repository information and we know exactly which changes are included in our package.
-![Release notes in Octopus Deploy](https://bekkopen.blob.core.windows.net/attachments/2e119050-0cf6-4819-90a3-36307f3f678d "Release notes in Octopus Deploy")
+
+<img src="https://raw.githubusercontent.com/nordineb/Blog/master/BEKK/Generating_a_project_change_log_with_Teamcity_and_Powershell/OctopusRelease.png" style="width: 570px;"/>
