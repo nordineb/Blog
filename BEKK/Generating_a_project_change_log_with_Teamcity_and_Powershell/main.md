@@ -38,14 +38,14 @@ Function GetCommitMessages($changeid)
 }
 
 # Grab all the changes
-$request = [System.Net.WebRequest]::Create("$($teamcityUrl)/httpAuth/app/rest/changes?build=id:$($buildId)")
+$request = [System.Net.WebRequest]::Create("$teamcityUrl/httpAuth/app/rest/changes?build=id:$($buildId)")
 $request.Headers.Add("AUTHORIZATION", "$authToken");
 $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()
 
 # Then get all commit messages for each of them
 $changelog = Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/changes/change" | Foreach {GetCommitMessages($_.Node.id)}
 $changelog > $outputFile
-Write-Host "Changelog saved to $($outputFile):"
+Write-Host "Changelog saved to ${outputFile}:"
 $changelog
 ```
 
