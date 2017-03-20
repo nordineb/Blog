@@ -1,4 +1,12 @@
 
+# Azure DNS, Let's Encrypt and Azure Keyvault
+
+# Summary 
+
+Azure DNS let's you manage your DNS records using Azure portal, Azure CLI, Powerhell and plain REST API. Getting started with Azure DNS is easy, buy a domain with your favorite registrar and change the nameserver.
+
+https://www.namecheap.com/domains/whois/results.aspx?domain=bekkops.xyz
+
 Domain
 ```
 Domain Name: ******
@@ -97,4 +105,77 @@ Things I miss with Azure DNS
 Install-Module -Name ACMESharp
 Import-Module ACMESharp
 Initialize-ACMEVault -Force
+```
+
+
+```
+#Requires -Version 3.0
+#Requires -Module AzureRM.Resources
+#Requires -Module Azure.Storage
+
+Param(
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string] $subdomain = $(throw "subdomain is mandatory, please provide a value."),
+    [string] $certificatePassword = $(throw "certificatePassword is mandatory, please provide a value."),
+    [string] $certificatePath = $(throw "certificatePath is mandatory, please provide a value.")
+)
+$ErrorActionPreference = "stop"
+Import-Module ACMESharp
+
+$domain = "bekkops.xyz"
+$resourcegroup = "DNSRG"
+$fqdn =  "$subdomain.$domain"
+$domainalias = "dns$subdomain"
+$certalias = "cert$subdomain"
+$exportPath = "$certificatePath\$subdomain\"
+
+#Initialize-ACMEVault
+#Get-ACMEVaultProfile 
+
+New-ACMERegistration -Contacts mailto:bekkops@bekk.no -AcceptTos
+
+
+if ((Get-ACMEIdentifier | where { $_.Dns -eq $fqdn } | %{ $_.Alias} ) -ne $domainalias )
+{
+    New-ACMEIdentifier -Dns $fqdn -Alias $domainalias
+}
+
+
+Complete-ACMEChallenge $domainalias -ChallengeType dns-01 -Handler manual 
+
+$txttoken = ((Get-ACMEIdentifier -IdentifierRef $domainalias).Challenges |  Where {$_.Type -eq "dns-01"}  | Select $_ -first 1).Challenge.RecordValue
+
+$zone = Get-AzureRmDnsZone –Name $domain –ResourceGroupName $resourcegroup
+Remove-AzureRmDnsRecordSet -Zone $zone -RecordType TXT -Name "_acme-challenge.$subdomain" -Force -ErrorAction SilentlyContinue
+$rs = New-AzureRmDnsRecordSet -Zone $zone -RecordType TXT -Name "_acme-challenge.$subdomain" -Ttl 60 -Force
+Add-AzureRmDnsRecordConfig -RecordSet $rs -Value $txttoken
+Set-AzureRmDnsRecordSet -RecordSet $rs
+Submit-ACMEChallenge $domainalias -ChallengeType dns-01
+Update-ACMEIdentifier $domainalias -ChallengeType dns-01 
+
+While (((Update-ACMEIdentifier $domainalias -ChallengeType dns-01).Challenges | Where-Object {$_.Type -eq "dns-01" -and $_.Status -eq "valid" } | % { $_.Status} ) -ne "valid") {
+    Start-Sleep -m 1000 # wait half a second before trying
+    Write-Host "Status is not valid yet..."
+}
+
+Update-ACMEIdentifier $domainalias -ChallengeType dns-01 
+New-ACMECertificate $domainalias -Generate -Alias $certalias
+Submit-ACMECertificate $certalias -Force
+
+While ([string]::IsNullOrEmpty((Update-ACMECertificate $certalias).SerialNumber))
+{
+    Start-Sleep -m 1000 # wait a second before trying again
+    Write-Host "IssuerSerialNumber is not set yet..."
+}
+
+Update-ACMECertificate $certalias
+
+md $exportPath -Force 
+Get-ACMECertificate -Verbose -Overwrite -Ref $certalias -CertificatePassword "My-Secret-Passw@rd!"  `
+    -ExportPkcs12 "$exportPath\\$certalias.pfx" -ExportKeyPEM "$exportPath\\$certalias-key.pem" -ExportCsrPEM "$exportPath\\$certalias-csr.pem"  `
+    -ExportCertificatePEM "$exportPath\\$certalias-crt.pem"  `
+    -ExportCertificateDER "$exportPath\\$certalias-crt.der"
+  
+```
 
