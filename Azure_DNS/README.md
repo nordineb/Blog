@@ -93,9 +93,9 @@ Remove-AzureRmDnsZone -Name $domainName -ResourceGroupName $resourceGroupName
 
 Things I miss with Azure DNS
 
-+ DNSSEC would be nice https://feedback.azure.com/forums/217313-networking/suggestions/13284393-azure-dns-needs-dnssec-support. Note that Amazon Route 53 
++ DNSSEC would be nice https://feedback.azure.com/forums/217313-networking/suggestions/13284393-azure-dns-needs-dnssec-support.
 
-+ 100$ SLA just like Amazon Route 53 would ne nice https://aws.amazon.com/route53/sla/
+100$ SLA just like Amazon Route 53 would ne nice https://aws.amazon.com/route53/sla/
 
 
 
