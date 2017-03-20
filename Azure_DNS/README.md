@@ -1,4 +1,5 @@
 ETFBEKK.COM
+```
 Domain Name: ******
 Registry Domain ID: 2000072648_DOMAIN_COM-VRSN
 Registrar WHOIS Server: whois.domainnameshop.com
@@ -28,6 +29,7 @@ Name Server: NS2-05.AZURE-DNS.NET
 Name Server: NS3-05.AZURE-DNS.ORG
 Name Server: NS4-05.AZURE-DNS.INFO
 DNSSEC: unsigned
+```
 
 Create AzureDNSZone
 ```
