@@ -80,3 +80,12 @@ Login-AzureRmAccount
 Select-AzureRmSubscription -Subscriptionid $subscription
 Remove-AzureRmDnsZone -Name $domainName -ResourceGroupName $resourceGroupName
 ```
+
+# Let's encrypt
+
+## Installation of ACMESharp
+```
+Install-Module -Name ACMESharp
+Import-Module ACMESharp
+Initialize-ACMEVault -Force
+
