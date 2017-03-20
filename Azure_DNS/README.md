@@ -40,6 +40,7 @@ Name Server: NS4-05.AZURE-DNS.INFO
 DNSSEC: unsigned
 ```
 
+DNS management is now a breeze 
 Create AzureDNSZone
 ```
 $subscription="SUBSCRIPTIONID"
@@ -179,3 +180,5 @@ Get-ACMECertificate -Verbose -Overwrite -Ref $certalias -CertificatePassword "My
   
 ```
 
+
+# Keyvault
