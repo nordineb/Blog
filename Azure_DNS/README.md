@@ -179,6 +179,7 @@ Get-ACMECertificate -Verbose -Overwrite -Ref $certalias -CertificatePassword "My
     -ExportCertificateDER "$exportPath\\$certalias-crt.der"
   
 ```
+https://www.powershellgallery.com/packages/Register-LetsEncryptCertificate/1.0/Content/Register-LetsEncryptCertificate.ps1
 
 
 # Keyvault
