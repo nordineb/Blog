@@ -34,7 +34,7 @@ Function GetCommitMessages($changeid)
     $xml = [xml](new-object System.IO.StreamReader $request.GetResponse().GetResponseStream()).ReadToEnd()    
     Microsoft.PowerShell.Utility\Select-Xml $xml -XPath "/change" |
         where { ($_.Node["comment"].InnerText.Length -ne 0) -and (-Not $_.Node["comment"].InnerText.Contains('#ignore'))} |
-        foreach {"+ $($_.Node["user"].name) : $($_.Node["comment"].InnerText.Trim().Replace("`n"," "))`n"}
+        foreach {"+ $($_.Node["user"].username) : $($_.Node["comment"].InnerText.Trim().Replace("`n"," "))`n"}
 }
 
 # Grab all the changes
